@@ -1,6 +1,6 @@
-import { Material } from "./material";
-import { Vertex } from "./vertex";
-import { MeshMode, RGBColor, RGBAColor } from "./types";
+import { Material } from "./material.ts";
+import { Vertex } from "./vertex.ts";
+import { MeshMode, RGBAColor, RGBColor } from "./types.ts";
 
 export class Mesh {
   public material: Material[] = [];
@@ -15,7 +15,7 @@ export class Mesh {
     v2: Vertex,
     v3: Vertex,
     color?: RGBColor | RGBAColor,
-    materialIndex?: number
+    materialIndex?: number,
   ): void {
     if (!v1 || !v2 || !v3) {
       throw new Error("Vertex passed to addFace was null or undefined");
@@ -37,8 +37,8 @@ export class Mesh {
       v2: Vertex,
       v3: Vertex,
       color: RGBColor | RGBAColor | undefined,
-      materialIndex: number
-    ) => boolean | void
+      materialIndex: number,
+    ) => boolean | void,
   ): void {
     const faceCount = this._vertices.length / 3;
     for (let i = 0; i < faceCount; i++) {
@@ -48,7 +48,7 @@ export class Mesh {
           this._vertices[i * 3 + 1],
           this._vertices[i * 3 + 2],
           this._faceColors[i],
-          this._materialIndices[i]
+          this._materialIndices[i],
         )
       ) {
         break;

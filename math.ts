@@ -44,7 +44,7 @@ export function toQuaternion(x: number, y: number, z: number): Quaternion {
     cy * sr * cp - sy * cr * sp,
     cy * cr * sp + sy * sr * cp,
     sy * cr * cp - cy * sr * sp,
-    cy * cr * cp + sy * sr * sp
+    cy * cr * cp + sy * sr * sp,
   );
 }
 
@@ -55,7 +55,6 @@ export function degreesToRadians(degrees: number): number {
 // NxN Square Matrix
 // Make sure to store as row-major
 export class Matrix {
-
   public data: number[][]; // try to use row-major
 
   public constructor(rows = 4) {
@@ -74,8 +73,9 @@ export class Matrix {
   }
 
   public get cols(): number {
-    if (this.rows === 0)
+    if (this.rows === 0) {
       return 0;
+    }
     return this.data[0].length;
   }
 
@@ -87,7 +87,7 @@ export class Matrix {
     for (let r = 0; r < rows; ++r) {
       const Mrow = [];
       for (let c = 0; c < rows; ++c) {
-        Mrow.push(r===c?1:0);
+        Mrow.push(r === c ? 1 : 0);
       }
       M.push(Mrow);
     }
@@ -97,12 +97,14 @@ export class Matrix {
   public static IsIdentity(matrix: Matrix): boolean {
     const rows = matrix.rows;
     const cols = matrix.cols;
-    if (rows !== cols)
+    if (rows !== cols) {
       return false;
+    }
     for (let r = 0; r < rows; ++r) {
       for (let c = 0; c < cols; ++c) {
-        if (matrix.data[r][c] != (r === c ? 1 : 0))
+        if (matrix.data[r][c] != (r === c ? 1 : 0)) {
           return false;
+        }
       }
     }
     return true;
@@ -119,8 +121,9 @@ export class Matrix3x3 extends Matrix {
   }
 
   public static IsIdentity(matrix: Matrix): boolean {
-    if (matrix.rows !== 3 || matrix.cols !== 3)
+    if (matrix.rows !== 3 || matrix.cols !== 3) {
       return false;
+    }
     return Matrix.IsIdentity(matrix);
   }
 }
@@ -135,8 +138,9 @@ export class Matrix4x4 extends Matrix {
   }
 
   public static IsIdentity(matrix: Matrix): boolean {
-    if (matrix.rows !== 4 || matrix.cols !== 4)
+    if (matrix.rows !== 4 || matrix.cols !== 4) {
       return false;
+    }
     return Matrix.IsIdentity(matrix);
   }
 }

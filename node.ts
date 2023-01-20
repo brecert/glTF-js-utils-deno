@@ -1,7 +1,13 @@
-import { Vector3, Quaternion, toQuaternion, degreesToRadians, Matrix4x4 } from "./math";
-import { Mesh } from "./mesh";
-import { Animation } from "./animation";
-import { Skin } from "./skin";
+import {
+  degreesToRadians,
+  Matrix4x4,
+  Quaternion,
+  toQuaternion,
+  Vector3,
+} from "./math.ts";
+import { Mesh } from "./mesh.ts";
+import { Animation } from "./animation.ts";
+import { Skin } from "./skin.ts";
 
 export class Node {
   public name = "";
@@ -20,8 +26,9 @@ export class Node {
   }
 
   public addNode(node: Node): void {
-    if (this._nodes.indexOf(node) >= 0)
+    if (this._nodes.indexOf(node) >= 0) {
       return;
+    }
     // throw new Error("Node passed to addNode was added prior.");
 
     this._nodes.push(node);
@@ -29,8 +36,9 @@ export class Node {
 
   public removeNode(node: Node | number): number {
     const idx = node instanceof Node ? this._nodes.indexOf(node) : node;
-    if (idx >= 0 && idx < this._nodes.length)
+    if (idx >= 0 && idx < this._nodes.length) {
       this._nodes.splice(idx, 1);
+    }
     return idx;
   }
 
@@ -43,9 +51,12 @@ export class Node {
   }
 
   public removeAnimation(animation: Animation | number): number {
-    const idx = animation instanceof Animation ? this.animations.indexOf(animation) : animation;
-    if (idx >= 0 && idx < this.animations.length)
+    const idx = animation instanceof Animation
+      ? this.animations.indexOf(animation)
+      : animation;
+    if (idx >= 0 && idx < this.animations.length) {
       this.animations.splice(idx, 1);
+    }
     return idx;
   }
 
@@ -58,14 +69,23 @@ export class Node {
   }
 
   public setRotationDegrees(x: number, y: number, z: number): void {
-    this.setRotationRadians(degreesToRadians(x), degreesToRadians(y), degreesToRadians(z));
+    this.setRotationRadians(
+      degreesToRadians(x),
+      degreesToRadians(y),
+      degreesToRadians(z),
+    );
   }
 
   public setRotationRadians(x: number, y: number, z: number): void {
-    this._rotation = toQuaternion(x, y ,z);
+    this._rotation = toQuaternion(x, y, z);
   }
 
-  public setRotationQuaternion(x: number, y: number, z: number, w: number): void {
+  public setRotationQuaternion(
+    x: number,
+    y: number,
+    z: number,
+    w: number,
+  ): void {
     this._rotation = new Quaternion(x, y, z, w);
   }
 

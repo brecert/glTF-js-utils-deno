@@ -1,5 +1,5 @@
-import { Texture } from "./texture";
-import { AlphaMode, VertexColorMode } from "./types";
+import { Texture } from "./texture.ts";
+import { AlphaMode, VertexColorMode } from "./types.ts";
 
 export class Material {
   public name = "";

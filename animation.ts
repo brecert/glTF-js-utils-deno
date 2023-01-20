@@ -1,4 +1,4 @@
-import { InterpolationMode, Transformation } from "./types";
+import { InterpolationMode, Transformation } from "./types.ts";
 
 // for cubicspline interpolation
 export interface KeyframeExtras {
@@ -25,7 +25,12 @@ export class Animation {
     this.name = name;
   }
 
-  public addKeyframe(time: number, value: number[], interpType: InterpolationMode, extras?: KeyframeExtras): void {
+  public addKeyframe(
+    time: number,
+    value: number[],
+    interpType: InterpolationMode,
+    extras?: KeyframeExtras,
+  ): void {
     console.assert(value.length >= 3);
 
     const kf: Keyframe = {
@@ -38,9 +43,13 @@ export class Animation {
       const ext: KeyframeExtras = {};
       if (extras) {
         if (extras.inTangent) ext.inTangent = extras.inTangent;
-        if (extras.inTangentWeight) ext.inTangentWeight = extras.inTangentWeight;
+        if (extras.inTangentWeight) {
+          ext.inTangentWeight = extras.inTangentWeight;
+        }
         if (extras.outTangent) ext.outTangent = extras.outTangent;
-        if (extras.outTangentWeight) ext.outTangentWeight = extras.outTangentWeight;
+        if (extras.outTangentWeight) {
+          ext.outTangentWeight = extras.outTangentWeight;
+        }
       }
 
       if (Object.keys(ext).length > 0) {

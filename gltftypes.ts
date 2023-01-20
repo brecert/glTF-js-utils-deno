@@ -1,17 +1,17 @@
 import {
   AlphaMode,
+  BufferOutputType,
+  BufferTarget,
   ComponentType,
   DataType,
-  MeshMode,
-  WrappingMode,
-  BufferOutputType,
   ImageOutputType,
   InterpolationMode,
+  MeshMode,
   Transformation,
-  BufferTarget,
-} from "./types";
-import { Buffer } from "./buffer";
-import { Node } from "./node";
+  WrappingMode,
+} from "./types.ts";
+import { Buffer } from "./buffer.ts";
+import { Node } from "./node.ts";
 
 export interface glTF {
   asset: {
@@ -143,7 +143,7 @@ export interface glTFNode {
     number,
     number,
     number,
-    number
+    number,
   ];
   weights?: number;
 }

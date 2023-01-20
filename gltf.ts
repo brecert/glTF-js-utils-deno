@@ -11,10 +11,10 @@ import {
   glTFNode,
   glTFScene,
   glTFSkin,
-} from "./gltftypes";
-import { GLTFAsset } from "./asset";
-import { Node } from "./node";
-import { Scene } from "./scene";
+} from "./gltftypes.ts";
+import { GLTFAsset } from "./asset.ts";
+import { Node } from "./node.ts";
+import { Scene } from "./scene.ts";
 import {
   AlphaMode,
   BufferOutputType,
@@ -27,16 +27,16 @@ import {
   RGBColor,
   Transformation,
   VertexColorMode,
-} from "./types";
-import { Mesh } from "./mesh";
-import { Buffer, BufferAccessorInfo, BufferView } from "./buffer";
-import { Vertex } from "./vertex";
-import { Material } from "./material";
-import { Texture, TextureImageType } from "./texture";
-import { imageToArrayBuffer, imageToDataURI } from "./imageutils";
-import { Animation } from "./animation";
-import { Skin } from "./skin";
-import { Matrix4x4 } from "./math";
+} from "./types.ts";
+import { Mesh } from "./mesh.ts";
+import { Buffer, BufferAccessorInfo, BufferView } from "./buffer.ts";
+import { Vertex } from "./vertex.ts";
+import { Material } from "./material.ts";
+import { Texture, TextureImageType } from "./texture.ts";
+import { imageToArrayBuffer, imageToDataURI } from "./imageutils.ts";
+import { Animation } from "./animation.ts";
+import { Skin } from "./skin.ts";
+import { Matrix4x4 } from "./math.ts";
 
 export function createEmptyGLTF(): glTF {
   return {
@@ -99,8 +99,9 @@ function addNode(gltf: glTF, node: Node): number {
   if (node.name) gltfNode.name = node.name;
 
   const translation = node.getTranslation();
-  if (translation.x !== 0 || translation.y !== 0 || translation.z !== 0)
+  if (translation.x !== 0 || translation.y !== 0 || translation.z !== 0) {
     gltfNode.translation = translation.toArray();
+  }
 
   const rotation = node.getRotationQuaternion();
   if (
@@ -108,12 +109,14 @@ function addNode(gltf: glTF, node: Node): number {
     rotation.y !== 0 ||
     rotation.z !== 0 ||
     rotation.w !== 1
-  )
+  ) {
     gltfNode.rotation = rotation.toArray();
+  }
 
   const scale = node.getScale();
-  if (scale.x !== 1 || scale.y !== 1 || scale.z !== 1)
+  if (scale.x !== 1 || scale.y !== 1 || scale.z !== 1) {
     gltfNode.scale = scale.toArray();
+  }
 
   const addedIndex = gltf.nodes.length;
   setNodeIndex(gltf, node, addedIndex);
@@ -143,12 +146,12 @@ function addNode(gltf: glTF, node: Node): number {
 
 function getJointIndexAndInverseBindMatrices(
   gltf: glTF,
-  node: Node
+  node: Node,
 ): [number[], (Matrix4x4 | undefined)[]] {
   const nodeIndex = getNodeIndex(gltf, node);
   if (nodeIndex === -1) {
     throw new Error(
-      "Node should be added to gltf before calling getJointIndexAndInverseBindMatrices"
+      "Node should be added to gltf before calling getJointIndexAndInverseBindMatrices",
     );
   }
 
@@ -216,7 +219,7 @@ export function addSkin(gltf: glTF, skin: Skin, node: Node): number {
   // init skin bufferView
   const skinBufferView = skinBuffer.addBufferView(
     ComponentType.FLOAT,
-    DataType.MAT4
+    DataType.MAT4,
   );
 
   // init skin accessor
@@ -236,7 +239,7 @@ export function addSkin(gltf: glTF, skin: Skin, node: Node): number {
   const skinAccessor_idx = addAccessor(
     gltf,
     skinBufferView.getIndex(),
-    skinAccessor
+    skinAccessor,
   );
 
   gltfSkin.inverseBindMatrices = skinAccessor_idx;
@@ -251,7 +254,7 @@ export function addSkin(gltf: glTF, skin: Skin, node: Node): number {
 export function addAnimations(
   gltf: glTF,
   animations: Animation[],
-  nodeIndex: number
+  nodeIndex: number,
 ): void {
   if (animations.length === 0) return;
 
@@ -263,7 +266,7 @@ export function addAnimations(
 
   const timeBufferView = animBuffer.addBufferView(
     ComponentType.FLOAT,
-    DataType.SCALAR
+    DataType.SCALAR,
   );
   let vec4BufferView: BufferView | undefined; // ComponentType.FLOAT, DataType.VEC4
   let vec3BufferView: BufferView | undefined; // ComponentType.FLOAT, DataType.VEC3
@@ -277,27 +280,28 @@ export function addAnimations(
   }
 
   const gltfAnim = gltf.animations[0];
-  if (animations[0].name && !gltfAnim.name)
+  if (animations[0].name && !gltfAnim.name) {
     // TODO: Animation names
     gltfAnim.name = animations[0].name;
+  }
 
   function _completeAnimation(
     animBufferView: BufferView,
     interpType: InterpolationMode,
-    path: Transformation
+    path: Transformation,
   ) {
     const timeAccessor = timeBufferView.endAccessor();
     const timeAccessor_idx = addAccessor(
       gltf,
       timeBufferView.getIndex(),
-      timeAccessor
+      timeAccessor,
     );
 
     const animAccessor = animBufferView.endAccessor();
     const animAccessor_idx = addAccessor(
       gltf,
       animBufferView.getIndex(),
-      animAccessor
+      animAccessor,
     );
 
     // then create samplers (input: times accessor idx, output: values accessor idx)
@@ -332,7 +336,7 @@ export function addAnimations(
       if (!vec4BufferView) {
         vec4BufferView = animBuffer.addBufferView(
           ComponentType.FLOAT,
-          DataType.VEC4
+          DataType.VEC4,
         );
       }
       animBufferView = vec4BufferView;
@@ -340,7 +344,7 @@ export function addAnimations(
       if (!vec3BufferView) {
         vec3BufferView = animBuffer.addBufferView(
           ComponentType.FLOAT,
-          DataType.VEC3
+          DataType.VEC3,
         );
       }
       animBufferView = vec3BufferView;
@@ -364,8 +368,9 @@ export function addAnimations(
       }
 
       const isSpline = interpType === InterpolationMode.CUBICSPLINE;
-      if (isSpline && isVec4)
+      if (isSpline && isVec4) {
         throw new Error("CUBICSPLINE for Vector4 not implemented!");
+      }
 
       const { time, value } = keyframe;
 
@@ -414,8 +419,9 @@ export function addAnimations(
 function addMesh(gltf: glTF, mesh: Mesh): number {
   if (!gltf.meshes) gltf.meshes = [];
 
-  if (mesh.mode !== MeshMode.TRIANGLES)
+  if (mesh.mode !== MeshMode.TRIANGLES) {
     throw "MeshMode other than TRIANGLES not currently supported";
+  }
 
   addMaterials(gltf, mesh.material);
 
@@ -437,7 +443,7 @@ function addMesh(gltf: glTF, mesh: Mesh): number {
 
   const vertexBufferView = meshBuffer.addBufferView(
     ComponentType.FLOAT,
-    DataType.VEC3
+    DataType.VEC3,
   );
 
   const hasNormals = meshHasVertexNormals(mesh);
@@ -445,13 +451,13 @@ function addMesh(gltf: glTF, mesh: Mesh): number {
   if (hasNormals) {
     vertexNormalBufferView = meshBuffer.addBufferView(
       ComponentType.FLOAT,
-      DataType.VEC3
+      DataType.VEC3,
     );
   }
 
   const vertexUVBufferView = meshBuffer.addBufferView(
     ComponentType.FLOAT,
-    DataType.VEC2
+    DataType.VEC2,
   );
 
   let vertexColorBufferView: BufferView | undefined;
@@ -460,14 +466,14 @@ function addMesh(gltf: glTF, mesh: Mesh): number {
 
     vertexColorBufferView = meshBuffer.addBufferView(
       ComponentType.UNSIGNED_BYTE,
-      DataType.VEC4
+      DataType.VEC4,
     );
   }
 
   function _completeMeshPrimitive(materialIndex: number): glTFMeshPrimitives {
     const vertexBufferAccessorInfo = vertexBufferView.endAccessor();
-    const vertexNormalBufferAccessorInfo =
-      vertexNormalBufferView?.endAccessor();
+    const vertexNormalBufferAccessorInfo = vertexNormalBufferView
+      ?.endAccessor();
     const vertexUVBufferAccessorInfo = vertexUVBufferView.endAccessor();
 
     const primitive: glTFMeshPrimitives = {
@@ -475,12 +481,12 @@ function addMesh(gltf: glTF, mesh: Mesh): number {
         POSITION: addAccessor(
           gltf,
           vertexBufferView.getIndex(),
-          vertexBufferAccessorInfo
+          vertexBufferAccessorInfo,
         ),
         TEXCOORD_0: addAccessor(
           gltf,
           vertexUVBufferView.getIndex(),
-          vertexUVBufferAccessorInfo
+          vertexUVBufferAccessorInfo,
         ),
       },
       mode: mesh.mode,
@@ -490,7 +496,7 @@ function addMesh(gltf: glTF, mesh: Mesh): number {
       primitive.attributes.NORMAL = addAccessor(
         gltf,
         vertexNormalBufferView.getIndex(),
-        vertexNormalBufferAccessorInfo
+        vertexNormalBufferAccessorInfo,
       );
     }
 
@@ -500,12 +506,12 @@ function addMesh(gltf: glTF, mesh: Mesh): number {
       // Only add color data if it is per-face/vertex.
       const material = mesh.material[materialIndex];
       if (material.vertexColorMode !== VertexColorMode.NoColors) {
-        const vertexColorBufferAccessorInfo =
-          vertexColorBufferView!.endAccessor();
+        const vertexColorBufferAccessorInfo = vertexColorBufferView!
+          .endAccessor();
         primitive.attributes["COLOR_0"] = addAccessor(
           gltf,
           vertexColorBufferView!.getIndex(),
-          vertexColorBufferAccessorInfo
+          vertexColorBufferAccessorInfo,
         );
       }
     }
@@ -520,7 +526,7 @@ function addMesh(gltf: glTF, mesh: Mesh): number {
       v2: Vertex,
       v3: Vertex,
       color: RGBColor | RGBAColor | undefined,
-      materialIndex: number
+      materialIndex: number,
     ) => {
       let currentMaterial: Material | null = null;
       if (materialIndex >= 0) currentMaterial = mesh.material[materialIndex];
@@ -593,7 +599,7 @@ function addMesh(gltf: glTF, mesh: Mesh): number {
             for (let v = 0; v < 3; v++) {
               addColorToBufferView(
                 vertexColorBufferView!,
-                color || new RGBColor()
+                color || new RGBColor(),
               );
             }
             break;
@@ -601,22 +607,22 @@ function addMesh(gltf: glTF, mesh: Mesh): number {
           case VertexColorMode.VertexColors:
             addColorToBufferView(
               vertexColorBufferView!,
-              v1.color || new RGBColor()
+              v1.color || new RGBColor(),
             );
             addColorToBufferView(
               vertexColorBufferView!,
-              v2.color || new RGBColor()
+              v2.color || new RGBColor(),
             );
             addColorToBufferView(
               vertexColorBufferView!,
-              v3.color || new RGBColor()
+              v3.color || new RGBColor(),
             );
             break;
 
-          // NoColors? We won't have an accessor.
+            // NoColors? We won't have an accessor.
         }
       }
-    }
+    },
   );
 
   if (lastMaterialIndex !== null) {
@@ -645,7 +651,7 @@ function meshHasVertexNormals(mesh: Mesh): boolean {
 
 function addColorToBufferView(
   bufferView: BufferView,
-  color: RGBColor | RGBAColor
+  color: RGBColor | RGBAColor,
 ) {
   bufferView.push((color.r * 255) | 0);
   bufferView.push((color.g * 255) | 0);
@@ -664,7 +670,7 @@ export function addBuffer(gltf: glTF): Buffer {
 export function addAccessor(
   gltf: glTF,
   bufferViewIndex: number,
-  accessorInfo: BufferAccessorInfo
+  accessorInfo: BufferAccessorInfo,
 ): number {
   if (!gltf.accessors) gltf.accessors = [];
 
@@ -703,10 +709,12 @@ function addMaterial(gltf: glTF, material: Material): number {
 
   const gltfMaterial: glTFMaterial = {};
   if (material.name) gltfMaterial.name = material.name;
-  if (material.alphaMode !== AlphaMode.OPAQUE)
+  if (material.alphaMode !== AlphaMode.OPAQUE) {
     gltfMaterial.alphaMode = material.alphaMode;
-  if (material.alphaCutoff !== 0.5)
+  }
+  if (material.alphaCutoff !== 0.5) {
     gltfMaterial.alphaCutoff = material.alphaCutoff;
+  }
   if (material.doubleSided) gltfMaterial.doubleSided = true;
   if (material.pbrMetallicRoughness) {
     if (material.pbrMetallicRoughness.baseColorFactor) {
@@ -715,11 +723,12 @@ function addMaterial(gltf: glTF, material: Material): number {
         material.pbrMetallicRoughness.baseColorFactor;
     }
     if (material.pbrMetallicRoughness.baseColorTexture) {
-      if (!gltfMaterial.pbrMetallicRoughness)
+      if (!gltfMaterial.pbrMetallicRoughness) {
         gltfMaterial.pbrMetallicRoughness = {};
+      }
       const textureIndex = addTexture(
         gltf,
-        material.pbrMetallicRoughness.baseColorTexture
+        material.pbrMetallicRoughness.baseColorTexture,
       );
       gltfMaterial.pbrMetallicRoughness.baseColorTexture = {
         index: textureIndex,
@@ -765,7 +774,7 @@ function addImage(gltf: glTF, image: TextureImageType): number {
     case ImageOutputType.GLB:
       bufferView = gltf.extras.binChunkBuffer!.addBufferView(
         ComponentType.UNSIGNED_BYTE,
-        DataType.SCALAR
+        DataType.SCALAR,
       );
       bufferView.writeAsync(imageToArrayBuffer(image)).then(() => {
         bufferView.finalize();
@@ -782,7 +791,7 @@ function addImage(gltf: glTF, image: TextureImageType): number {
       gltf.extras.promises.push(
         imageToArrayBuffer(image).then((pngBuffer: ArrayBuffer) => {
           gltfImage.uri = pngBuffer as any; // Processed later
-        })
+        }),
       );
       break;
   }

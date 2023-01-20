@@ -1,4 +1,4 @@
-import { RGBColor, RGBAColor } from "./types";
+import { RGBAColor, RGBColor } from "./types.ts";
 
 /** Represents a mesh vertex. */
 export class Vertex {

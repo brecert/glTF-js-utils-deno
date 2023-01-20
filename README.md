@@ -1,5 +1,4 @@
-gltf-js-utils
-=============
+# gltf-js-utils
 
 Helper library for creating glTF 2.0 models with JavaScript.
 
@@ -11,8 +10,15 @@ Create a `GLTFAsset` structure using the provided types.
 
 ```javascript
 import {
-  GLTFAsset, Scene, Node, Material, Texture, Mesh, Vertex, WrappingMode
-} from "gltf-js-utils";
+  GLTFAsset,
+  Material,
+  Mesh,
+  Node,
+  Scene,
+  Texture,
+  Vertex,
+  WrappingMode,
+} from "gltf-js-utils.ts";
 
 const asset = new GLTFAsset();
 const scene = new Scene();
@@ -54,22 +60,27 @@ mesh.addFace(v4, v5, v6, faceColor, faceMaterialIndex);
 ###### Create Animation
 
 ```javascript
-import { Node, Animation, InterpolationMode, Transformation } from "gltf-js-utils";
+import {
+  Animation,
+  InterpolationMode,
+  Node,
+  Transformation,
+} from "gltf-js-utils.ts";
 
 const node = new Node();
 scene.addNode(node);
 const nodeAnim = new Animation(Transformation.TRANSLATION);
 nodeAnim.keyframes = [
-    {
-        time: 0,
-        value: [1, 2, 3],
-        interpType: InterpolationMode.LINEAR
-    },
-    {
-        time: 0.3,
-        value: [4, 5, 6],
-        interpType: InterpolationMode.LINEAR
-    }
+  {
+    time: 0,
+    value: [1, 2, 3],
+    interpType: InterpolationMode.LINEAR,
+  },
+  {
+    time: 0.3,
+    value: [4, 5, 6],
+    interpType: InterpolationMode.LINEAR,
+  },
 ];
 // or add keyframes via addKeyframe function
 nodeAnim1.addKeyframe(0.8, [7, 8, 9], InterpolationMode.STEP);
@@ -78,10 +89,11 @@ node.animations = [nodeAnim];
 
 ##### Export to a collection of individual files/data
 
-With the default options, you'll receive an object keyed with the glTF JSON and binary buffers.
+With the default options, you'll receive an object keyed with the glTF JSON and
+binary buffers.
 
 ```javascript
-import { exportGLTF } from "gltf-js-utils";
+import { exportGLTF } from "gltf-js-utils.ts";
 
 const gltfFiles = await exportGLTF(asset);
 // {
@@ -101,7 +113,7 @@ const gltfFiles = await exportGLTF(asset);
 Buffers and/or images can be embedded within the JSON as data URIs.
 
 ```javascript
-import { exportGLTF, BufferOutputType } from "gltf-js-utils";
+import { BufferOutputType, exportGLTF } from "gltf-js-utils.ts";
 
 const gltfFiles = await exportGLTF(asset, {
   bufferOutputType: BufferOutputType.DataURI,
@@ -117,10 +129,10 @@ const gltfFiles = await exportGLTF(asset, {
 Requires a `JSZip` reference. The result will be a ZIP blob.
 
 ```javascript
-import * as JSZip from "jszip";
-import { exportGLTFZip } from "gltf-js-utils";
+import * as JSZip from "jszip.ts";
+import { exportGLTFZip } from "gltf-js-utils.ts";
 
-exportGLTFZip(asset, JSZip).then(blob => {
+exportGLTFZip(asset, JSZip).then((blob) => {
   // Use FileSaver as an example.
   saveAs(blob, "model.zip");
 });
@@ -128,13 +140,14 @@ exportGLTFZip(asset, JSZip).then(blob => {
 
 #### Create glTF from Three.js object
 
-Use the separate [`gtlf-js-utils-three` package](https://github.com/wnayes/glTF-js-utils-three)
-to create glTF models from Three.js models.
-See the `gtlf-js-utils-three` documentation for more details.
+Use the separate
+[`gtlf-js-utils-three` package](https://github.com/wnayes/glTF-js-utils-three)
+to create glTF models from Three.js models. See the `gtlf-js-utils-three`
+documentation for more details.
 
 ```javascript
-import { exportGLTF } from "gltf-js-utils";
-import { glTFAssetFromTHREE } from "gltf-js-utils-three";
+import { exportGLTF } from "gltf-js-utils.ts";
+import { glTFAssetFromTHREE } from "gltf-js-utils-three.ts";
 
 // Create a Three.js Scene or Object3D structure...
 const scene = new THREE.Scene();
@@ -148,15 +161,16 @@ const gltfFiles = await exportGLTF(glTFAssetFromTHREE(scene));
 Calling `exportGLB` will produce a single GLB model in an ArrayBuffer.
 
 ```javascript
-import { exportGLB } from "gltf-js-utils";
+import { exportGLB } from "gltf-js-utils.ts";
 
 const glbArrayBuffer = await exportGLB(asset);
 ```
 
-You can also use `exportGLTF` with the GLB output type to selectively keep some assets external.
+You can also use `exportGLTF` with the GLB output type to selectively keep some
+assets external.
 
 ```javascript
-import { exportGLTF, BufferOutputType } from "gltf-js-utils";
+import { BufferOutputType, exportGLTF } from "gltf-js-utils.ts";
 
 const gltfFiles = await exportGLTF(asset, {
   bufferOutputType: BufferOutputType.GLB,
@@ -172,7 +186,8 @@ const gltfFiles = await exportGLTF(asset, {
 ```
 
 ## Limitations
-* No support for camera yet.
+
+- No support for camera yet.
 
 ## Development
 

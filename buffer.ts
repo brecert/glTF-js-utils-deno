@@ -1,5 +1,10 @@
-import { ComponentType, DataType } from "./types";
-import { glTFBuffer, glTF, glTFBufferView, glTFAttribute } from "./gltftypes";
+import { ComponentType, DataType } from "./types.ts";
+import {
+  glTF,
+  glTFAttribute,
+  glTFBuffer,
+  glTFBufferView,
+} from "./gltftypes.ts";
 
 export class Buffer {
   private _gltf: glTF;
@@ -12,8 +17,9 @@ export class Buffer {
   public constructor(gltf: glTF) {
     this._gltf = gltf;
 
-    if (!gltf.buffers)
+    if (!gltf.buffers) {
       gltf.buffers = [];
+    }
 
     this._index = gltf.buffers.length;
     const gltfBuffer = {
@@ -27,9 +33,13 @@ export class Buffer {
     return this._index;
   }
 
-  public addBufferView(componentType: ComponentType, dataType: DataType): BufferView {
-    if (this._finalizePromise)
+  public addBufferView(
+    componentType: ComponentType,
+    dataType: DataType,
+  ): BufferView {
+    if (this._finalizePromise) {
       throw new Error("Cannot add buffer view after finalizing buffer");
+    }
 
     const view = new BufferView(this, this._gltf, componentType, dataType);
     this._bufferViews.push(view);
@@ -47,7 +57,9 @@ export class Buffer {
     throw "Given bufferView was not present in this buffer";
   }
 
-  public getViewFinalizePromises(targetBufferView?: BufferView): Promise<void>[] {
+  public getViewFinalizePromises(
+    targetBufferView?: BufferView,
+  ): Promise<void>[] {
     const promises = [];
     for (const view of this._bufferViews) {
       if (targetBufferView && view === targetBufferView) {
@@ -59,8 +71,11 @@ export class Buffer {
   }
 
   public getArrayBuffer(): ArrayBuffer {
-    if (!this._finalized)
-      throw new Error("Cannot get ArrayBuffer from Buffer before it is finalized");
+    if (!this._finalized) {
+      throw new Error(
+        "Cannot get ArrayBuffer from Buffer before it is finalized",
+      );
+    }
 
     const byteLength = this._getTotalSize();
     const buffer = new ArrayBuffer(byteLength);
@@ -75,8 +90,9 @@ export class Buffer {
   }
 
   public finalize(): Promise<void> {
-    if (this._finalizePromise)
+    if (this._finalizePromise) {
       throw new Error(`Buffer ${this._index} was already finalized`);
+    }
 
     this._finalizePromise = new Promise((resolve) => {
       resolve(Promise.all(this.getViewFinalizePromises()));
@@ -86,7 +102,7 @@ export class Buffer {
       const arrayBuffer = this.getArrayBuffer();
 
       this._gltfBuffer.byteLength = arrayBuffer.byteLength;
-      this._gltfBuffer.uri = (arrayBuffer as any); // Still not totally finalized, see stringify
+      this._gltfBuffer.uri = arrayBuffer as any; // Still not totally finalized, see stringify
     });
     this._gltf.extras.promises.push(this._finalizePromise);
     return this._finalizePromise;
@@ -120,13 +136,19 @@ export class BufferView {
   private _accessorMin: number[] | null = null;
   private _accessorMax: number[] | null = null;
 
-  public constructor(buffer: Buffer, gltf: glTF, componentType: ComponentType, dataType: DataType) {
+  public constructor(
+    buffer: Buffer,
+    gltf: glTF,
+    componentType: ComponentType,
+    dataType: DataType,
+  ) {
     this._buffer = buffer;
     this._componentType = componentType;
     this._dataType = dataType;
 
-    if (!gltf.bufferViews)
+    if (!gltf.bufferViews) {
       gltf.bufferViews = [];
+    }
 
     this._index = gltf.bufferViews.length;
     this._gltfBufferView = {
@@ -163,16 +185,18 @@ export class BufferView {
       }
 
       const currentMin = this._accessorMin[minmaxIndex];
-      if (typeof currentMin !== "number")
+      if (typeof currentMin !== "number") {
         this._accessorMin[minmaxIndex] = item;
-      else
+      } else {
         this._accessorMin[minmaxIndex] = Math.min(currentMin, item);
+      }
 
       const currentMax = this._accessorMax[minmaxIndex];
-      if (typeof currentMax !== "number")
+      if (typeof currentMax !== "number") {
         this._accessorMax[minmaxIndex] = item;
-      else
+      } else {
         this._accessorMax[minmaxIndex] = Math.max(currentMax, item);
+      }
     }
   }
 
@@ -187,13 +211,17 @@ export class BufferView {
   }
 
   public getByteOffset(): number {
-    if (!this._finalized)
+    if (!this._finalized) {
       throw new Error("Cannot get BufferView offset until it is finalized");
+    }
 
     return this._buffer.getByteOffset(this);
   }
 
-  public writeOutToBuffer(buffer: ArrayBuffer, startIndex: number = this.getSize()): void {
+  public writeOutToBuffer(
+    buffer: ArrayBuffer,
+    startIndex: number = this.getSize(),
+  ): void {
     const dataView = new DataView(buffer, startIndex);
 
     const sizeOfComponentType = this._sizeOfComponentType();
@@ -204,8 +232,9 @@ export class BufferView {
   }
 
   public writeAsync(buffer: Promise<ArrayBuffer>): Promise<void> {
-    if (this._asyncWritePromise)
+    if (this._asyncWritePromise) {
       throw new Error("Can't write multiple buffer view values asynchronously");
+    }
     this._asyncWritePromise = buffer.then((arrayBuffer: ArrayBuffer) => {
       const uintArray = new Uint8Array(arrayBuffer);
       for (let i = 0; i < uintArray.byteLength; i++) {
@@ -217,8 +246,9 @@ export class BufferView {
   }
 
   public startAccessor(attr: glTFAttribute | null = null): void {
-    if (this._accessorIndex >= 0)
+    if (this._accessorIndex >= 0) {
       throw "Accessor was started without ending the previous one";
+    }
 
     this._accessorIndex = this._data.length;
     this._accessorAttr = attr;
@@ -227,28 +257,36 @@ export class BufferView {
   }
 
   public endAccessor(): BufferAccessorInfo {
-    if (this._accessorIndex < 0)
-      throw new Error("An accessor was not started, but was attempted to be ended");
+    if (this._accessorIndex < 0) {
+      throw new Error(
+        "An accessor was not started, but was attempted to be ended",
+      );
+    }
 
     const elementSize = this._getElementSize();
-    const numComponentsForDataType = this._numComponentsForDataType()
-    const numElements = (this._data.length - this._accessorIndex) / numComponentsForDataType;
-    if (numElements % 1)
+    const numComponentsForDataType = this._numComponentsForDataType();
+    const numElements = (this._data.length - this._accessorIndex) /
+      numComponentsForDataType;
+    if (numElements % 1) {
       throw new Error("An accessor was ended with missing component values");
+    }
 
     if (!this._accessorMin || !this._accessorMax) {
       throw new Error("Unexpected accessor state");
     }
 
     for (let i = 0; i < this._accessorMin.length; i++) {
-      if (typeof this._accessorMin[i] !== "number")
+      if (typeof this._accessorMin[i] !== "number") {
         this._accessorMin[i] = 0;
-      if (typeof this._accessorMax[i] !== "number")
+      }
+      if (typeof this._accessorMax[i] !== "number") {
         this._accessorMax[i] = 0;
+      }
     }
 
     const info: BufferAccessorInfo = {
-      byteOffset: elementSize * (this._accessorIndex / numComponentsForDataType), // All previous data
+      byteOffset: elementSize *
+        (this._accessorIndex / numComponentsForDataType), // All previous data
       componentType: this._componentType,
       count: numElements,
       type: this._dataType,
@@ -281,8 +319,7 @@ export class BufferView {
     if (!this._finalizedPromise) {
       if (this._finalized) {
         return this._finalizedPromise = Promise.resolve();
-      }
-      else {
+      } else {
         return this._finalizedPromise = new Promise<void>((resolve) => {
           this._finalizedPromiseResolve = resolve;
         });
@@ -296,8 +333,9 @@ export class BufferView {
 
     return new Promise((resolve) => {
       const prereqs = this._buffer.getViewFinalizePromises(this);
-      if (this._asyncWritePromise)
+      if (this._asyncWritePromise) {
         prereqs.push(this._asyncWritePromise);
+      }
       resolve(Promise.all(prereqs));
     }).then(() => {
       this._finalized = true;
@@ -305,8 +343,9 @@ export class BufferView {
       gltfBufferView.byteOffset = this.getByteOffset();
       gltfBufferView.byteLength = this.getDataSize();
 
-      if (this._finalizedPromiseResolve)
+      if (this._finalizedPromiseResolve) {
         this._finalizedPromiseResolve();
+      }
     });
   }
 

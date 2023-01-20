@@ -1,12 +1,14 @@
-import { arrayBufferIsPNG } from "./imageutils";
-import { WrappingMode } from "./types";
+import { arrayBufferIsPNG } from "./imageutils.ts";
+import { WrappingMode } from "./types.ts";
 
 /**
  * Supported texture image types.
  * For ArrayBuffer, the current assumption is that the buffer contains PNG data.
  * For string, expectation is an image/png data uri.
  */
-export type TextureImageType = HTMLImageElement | HTMLCanvasElement | ArrayBuffer | string;
+export type TextureImageType =
+  | ArrayBuffer
+  | string;
 
 /** Represents a model texture. */
 export class Texture {
@@ -19,10 +21,14 @@ export class Texture {
       throw new Error("Why is the texture image being unset?");
     }
     if (val instanceof ArrayBuffer && !arrayBufferIsPNG(val)) {
-      throw new Error("Texture was given an ArrayBuffer, but it does not appear to contain PNG image data.");
+      throw new Error(
+        "Texture was given an ArrayBuffer, but it does not appear to contain PNG image data.",
+      );
     }
     if (typeof val === "string" && !val.startsWith("data:image/png;base64,")) {
-      throw new Error("Texture was given a string, but it does not appear be a data uri with base64 encoded image/png data.");
+      throw new Error(
+        "Texture was given a string, but it does not appear be a data uri with base64 encoded image/png data.",
+      );
     }
     this.__image = val;
   }
